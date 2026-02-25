@@ -15,10 +15,8 @@ jobs:
       - name: 检出仓库代码
         uses: actions/checkout@v4
 
-      - name: 下载核心文件（解决requirements.txt缺失）
+      - name: 下载核心文件
         run: |
-          # 下载requirements.txt
-          curl -o requirements.txt https://raw.githubusercontent.com/Guovin/iptv-api/master/requirements.txt
           # 下载main.py
           curl -o main.py https://raw.githubusercontent.com/Guovin/iptv-api/master/main.py
           # 创建config目录并下载config.ini
@@ -30,9 +28,16 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: 安装依赖包
+      - name: 手动安装依赖包（跳过requirements.txt）
         run: |
-          pip install --no-cache-dir -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
+          pip install --no-cache-dir \
+            requests \
+            beautifulsoup4 \
+            lxml \
+            tqdm \
+            aiohttp \
+            asyncio \
+            -i https://pypi.tuna.tsinghua.edu.cn/simple
 
       - name: 配置订阅源
         run: |
