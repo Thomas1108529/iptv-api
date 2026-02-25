@@ -15,39 +15,25 @@ jobs:
       - name: 检出仓库代码
         uses: actions/checkout@v4
 
-      - name: 下载核心文件
+      - name: 克隆完整的IPTV-API项目
         run: |
-          # 下载main.py
-          curl -o main.py https://raw.githubusercontent.com/Guovin/iptv-api/master/main.py
-          # 创建config目录并下载config.ini
-          mkdir -p config
-          curl -o config/config.ini https://raw.githubusercontent.com/Guovin/iptv-api/master/config/config.ini
+          # 清空当前目录，克隆整个项目
+          rm -rf ./*
+          git clone https://github.com/Guovin/iptv-api.git .
 
       - name: 设置Python环境
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
 
-      - name: 安装所有依赖包（从原项目requirements.txt提取）
+      - name: 安装所有依赖包
         run: |
-          pip install --no-cache-dir \
-            requests \
-            beautifulsoup4 \
-            lxml \
-            tqdm \
-            aiohttp \
-            asyncio \
-            pytz \
-            python-dotenv \
-            -i https://pypi.tuna.tsinghua.edu.cn/simple
+          pip install --no-cache-dir -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
 
       - name: 配置订阅源
         run: |
-          # 确保配置文件存在
-          cp config/config.ini config/user_config.ini || true
-          # 写入有效订阅源
+          cp config/config.ini config/user_config.ini
           echo "https://raw.githubusercontent.com/iptv-org/iptv/master/channels/cn.m3u" > config/subscribe.txt
-          # 修改配置，开启更新和生成文件
           sed -i 's/open_update = false/open_update = true/' config/user_config.ini
           sed -i 's/open_m3u_result = false/open_m3u_result = true/' config/user_config.ini
           sed -i 's/open_txt_result = false/open_txt_result = true/' config/user_config.ini
