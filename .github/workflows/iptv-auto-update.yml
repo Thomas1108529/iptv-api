@@ -15,6 +15,14 @@ jobs:
       - name: 检出仓库代码
         uses: actions/checkout@v4
 
+      - name: 克隆完整的IPTV-API项目
+        run: |
+          # 删除当前目录下的所有文件（除了.git文件夹）
+          shopt -s dotglob
+          rm -rf ./*
+          # 克隆原项目到当前目录
+          git clone https://github.com/Guovin/iptv-api.git .
+
       - name: 设置Python环境
         uses: actions/setup-python@v5
         with:
@@ -51,4 +59,4 @@ jobs:
           git config --global user.email "actions@github.com"
           git add .
           git commit -m "Auto update IPTV sources $(date +'%Y-%m-%d %H:%M:%S')" || echo "无更新内容"
-          git push origin main
+          git push origin master
