@@ -15,13 +15,15 @@ jobs:
       - name: 检出仓库代码
         uses: actions/checkout@v4
 
-      - name: 克隆完整的IPTV-API项目
+      - name: 下载核心文件（解决requirements.txt缺失）
         run: |
-          # 删除当前目录下的所有文件（除了.git文件夹）
-          shopt -s dotglob
-          rm -rf ./*
-          # 克隆原项目到当前目录
-          git clone https://github.com/Guovin/iptv-api.git .
+          # 下载requirements.txt
+          curl -o requirements.txt https://raw.githubusercontent.com/Guovin/iptv-api/master/requirements.txt
+          # 下载main.py
+          curl -o main.py https://raw.githubusercontent.com/Guovin/iptv-api/master/main.py
+          # 创建config目录并下载config.ini
+          mkdir -p config
+          curl -o config/config.ini https://raw.githubusercontent.com/Guovin/iptv-api/master/config/config.ini
 
       - name: 设置Python环境
         uses: actions/setup-python@v5
