@@ -1,0 +1,54 @@
+name: IPTV-API 自动更新
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'  # 每6小时自动更新一次
+  workflow_dispatch:       # 允许手动触发
+
+permissions:
+  contents: write          # 赋予推送文件的权限
+
+jobs:
+  update-iptv:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 检出仓库代码
+        uses: actions/checkout@v4
+
+      - name: 设置Python环境
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: 安装依赖包
+        run: |
+          pip install --no-cache-dir -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
+
+      - name: 配置订阅源
+        run: |
+          # 确保配置文件存在
+          cp config/config.ini config/user_config.ini || true
+          # 写入有效订阅源
+          echo "https://raw.githubusercontent.com/iptv-org/iptv/master/channels/cn.m3u" > config/subscribe.txt
+          # 修改配置，开启更新和生成文件
+          sed -i 's/open_update = false/open_update = true/' config/user_config.ini
+          sed -i 's/open_m3u_result = false/open_m3u_result = true/' config/user_config.ini
+          sed -i 's/open_txt_result = false/open_txt_result = true/' config/user_config.ini
+
+      - name: 运行IPTV-API生成源文件
+        run: |
+          python main.py
+
+      - name: 复制生成的文件到仓库根目录
+        run: |
+          cp output/result.m3u iptv.m3u
+          cp output/result.txt iptv.txt
+          echo "最后更新时间：$(date +'%Y-%m-%d %H:%M:%S')" > update-time.txt
+
+      - name: 推送更新到仓库
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          git add .
+          git commit -m "Auto update IPTV sources $(date +'%Y-%m-%d %H:%M:%S')" || echo "无更新内容"
+          git push origin main
