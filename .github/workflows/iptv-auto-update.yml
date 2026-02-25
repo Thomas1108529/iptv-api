@@ -28,7 +28,7 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: 手动安装依赖包（跳过requirements.txt）
+      - name: 安装所有依赖包（从原项目requirements.txt提取）
         run: |
           pip install --no-cache-dir \
             requests \
@@ -37,6 +37,8 @@ jobs:
             tqdm \
             aiohttp \
             asyncio \
+            pytz \
+            python-dotenv \
             -i https://pypi.tuna.tsinghua.edu.cn/simple
 
       - name: 配置订阅源
